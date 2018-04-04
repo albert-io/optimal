@@ -28,7 +28,8 @@ defmodule Optimal.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:vex, "~> 0.6.0"}
+      {:vex, "~> 0.6.0"},
+      {:ex_doc, ">= 0.0.0", only: :dev}
     ]
   end
 end
