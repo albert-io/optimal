@@ -1,6 +1,6 @@
 # Optimal
 
-**TODO: Add description**
+A small-ish wrapper around vex designed for opt validation and defaulting.
 
 ## Installation
 
