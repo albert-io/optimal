@@ -6,6 +6,10 @@ defmodule Optimal do
   @type vex_error :: {:error, atom, atom, String.t()}
   @type validation_result :: {:ok, Keyword.t()} | {:error, [vex_error]}
 
+  defdelegate schema(opts), to: Optimal.Schema, as: :new
+  defdelegate schema(), to: Optimal.Schema, as: :new
+  defdelegate merge(left, right), to: Optimal.Schema, as: :merge
+
   @doc """
   Validates opts according to a schema or the constructor for a schema. Raises on invalid opts.
 
@@ -46,11 +50,6 @@ defmodule Optimal do
     |> Vex.validate(schema.vex)
     |> validate_additional_keys(opts, schema)
     |> validate_nested_schemas(opts, schema)
-  end
-
-  @spec schema(Keyword.t()) :: Optimal.Schema.t()
-  def schema(opts) do
-    Optimal.Schema.new(opts)
   end
 
   @spec validate_additional_keys(validation_result(), Keyword.t(), Optimal.Schema.t()) :: validation_result()
