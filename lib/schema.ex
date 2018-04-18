@@ -10,8 +10,14 @@ defmodule Optimal.Schema do
     allow_values: Keyword.t()
   }
 
+  @spec new() :: t()
+  def new() do
+    new(allowed: [])
+  end
+
   @spec new(Keyword.t() | t()) :: t() | no_return
   def new(schema = %__MODULE__{}), do: schema
+  def new([]), do: new(allowed: [])
   def new(opts) do
     opts =
       opts
@@ -50,6 +56,18 @@ defmodule Optimal.Schema do
     }
   end
 
+  @spec merge(t(), t()) :: t()
+  def merge(left, right) do
+    %__MODULE__{
+      vex: Keyword.merge(left.vex, right.vex, fn _, v1, v2 -> Keyword.merge(v1, v2) end),
+      defaults: Keyword.merge(left.defaults, right.defaults),
+      additional_keys?: right.additional_keys?,
+      nested_schemas: Keyword.merge(left.nested_schemas, right.nested_schemas),
+      nesting_path: [],
+      allow_values: Keyword.merge(left.allow_values, right.allow_values, fn _, v1, v2 -> v1 ++ v2 end)
+    }
+  end
+
   @spec reduce_over(acc, list(value), ((value, acc) -> acc)) :: acc when acc: term, value: term
   defp reduce_over(schema, list, fun) do
     Enum.reduce(list, schema, fun)
@@ -59,7 +77,7 @@ defmodule Optimal.Schema do
   defp schema_schema() do
     %__MODULE__{
       vex: [
-        allowed: [presence: true],
+        allowed: [],
         required: [],
         defaults: [],
         nested_schemas: [],
