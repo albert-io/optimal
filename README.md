@@ -1,6 +1,7 @@
 # Optimal
 
-A small-ish wrapper around vex designed for opt validation and defaulting.
+A schema based `opt` validator. Its verbose, but I've tried many other data validation libraries,
+and their succinctness came with a cost when it came to features.
 
 ## Installation
 
