@@ -21,28 +21,28 @@ end
 
 ```elixir
 # Allow no opts
-Schema.schema()
+Optimal.schema()
 
 # Allow any opts
-Schema.schema(extra_keys?: true)
+Optimal.schema(extra_keys?: true)
 
 # Allow a specific set of opts
-Schema.schema(opts: [:foo, :bar, :baz])
+Optimal.schema(opts: [:foo, :bar, :baz])
 
 # Allow specific types
-Schema.schema(opts: [foo: :int, bar: :string, baz: :pid])
+Optimal.schema(opts: [foo: :int, bar: :string, baz: :pid])
 
 # Require certain opts
-Schema.schema(opts, [foo: :int, bar: :string, baz: :pid], required: [:foo, :bar])
+Optimal.schema(opts, [foo: :int, bar: :string, baz: :pid], required: [:foo, :bar])
 
 # Provide defaults for arguments (defaults will have to pass any type validation)
 # If they provide they key, but a `nil` value, the default is *not* used.
-Schema.schema(opts, [foo: :int, bar: :string, baz: :boolean], defaults: [baz: true])
+Optimal.schema(opts, [foo: :int, bar: :string, baz: :boolean], defaults: [baz: true])
 
 # Allow only specific values for certain opts
-Schema.schema(opts, [foo: :int], allow_values: [foo: [1, 2, 3]])
+Optimal.schema(opts, [foo: :int], allow_values: [foo: [1, 2, 3]])
 # Or as an enum type
-Schema.schema(opts, [foo: {:enum, [1, 2, 3]}])
+Optimal.schema(opts, [foo: {:enum, [1, 2, 3]}])
 
 # Custom validations
 # Read below for more info
@@ -54,7 +54,7 @@ def custom(field_value, field_name, all_opts, schema) do
   end
 end
 
-Schema.schema(opts, [foo: :integer, bar: :string], custom: [&custom/4])
+Optimal.schema(opts, [foo: :integer, bar: :string], custom: [&custom/4])
 ```
 
 ## Types
@@ -126,4 +126,16 @@ def greater_than_1_and_even(field_value, field, _, _) do
     [{field, "should be even} | errors]
   end
 end
+```
+
+## Schema merging
+
+This behavior is not set in stone, and will probably need to take a `strategy` option to support different kinds of merging opt schemas. We've noticed this is very helpful with certain patterns like building a DSL, where all forms of something take a certain set of args, but a specific form allows more args and/or additional types for that set arg.
+
+```elixir
+
+schema1 = Optimal.schema(opts: [foo: :int])
+schema2 = Optimal.schema(opts: [foo: :string, bar: :int])
+
+Optimal.merge(schema1, schema2) == Optimal.schema(opts: [foo: [:int, :string], bar: :int])
 ```
