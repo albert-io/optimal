@@ -3,7 +3,7 @@ defmodule Optimal do
   Documentation for Optimal.
   """
 
-  @type error :: {:error, atom, atom, String.t()}
+  @type error :: {atom, String.t()}
   @type validation_result :: {:ok, Keyword.t()} | {:error, [error]}
 
   defdelegate schema(opts), to: Optimal.Schema, as: :new
@@ -15,9 +15,9 @@ defmodule Optimal do
 
       iex> Optimal.validate!([reticulate_splines?: true], opts: [:reticulate_splines?])
       [reticulate_splines?: true]
-      iex> Optimal.validate!([reticulate_splines?: true], opts: [:load_textures?], additional_keys?: true)
+      iex> Optimal.validate!([reticulate_splines?: true], opts: [:load_textures?], extra_keys?: true)
       [reticulate_splines?: true]
-      iex> schema = Optimal.schema(opts: [:reticulate_splines?], required: [:reticulate_splines?], additional_keys?: true)
+      iex> schema = Optimal.schema(opts: [:reticulate_splines?], required: [:reticulate_splines?], extra_keys?: true)
       ...> Optimal.validate!([reticulate_splines?: true, hack_interwebs?: true], schema)
       [reticulate_splines?: true, hack_interwebs?: true]
       iex> Optimal.validate!([], opts: [:reticulate_splines?], required: [:reticulate_splines?])
@@ -56,7 +56,7 @@ defmodule Optimal do
     |> validate_required(with_defaults, schema)
     |> validate_inclusion(with_defaults, schema)
     |> validate_types(with_defaults, schema)
-    |> validate_additional_keys(with_defaults, schema)
+    |> validate_extra_keys(with_defaults, schema)
     |> validate_custom(schema)
   end
   def validate(_opts, _schema) do
@@ -81,6 +81,8 @@ defmodule Optimal do
         {:ok, updated_opts} ->
           {:ok, updated_opts}
 
+        {:error, error_or_errors} ->
+          add_errors(validation_result, error_or_errors)
         [] ->
           validation_result
 
@@ -137,12 +139,12 @@ defmodule Optimal do
     end)
   end
 
-  @spec validate_additional_keys(validation_result(), Keyword.t(), Optimal.Schema.t()) ::
+  @spec validate_extra_keys(validation_result(), Keyword.t(), Optimal.Schema.t()) ::
           validation_result()
-  defp validate_additional_keys(validation_result, _opts, %{additional_keys?: true}),
+  defp validate_extra_keys(validation_result, _opts, %{extra_keys?: true}),
     do: validation_result
 
-  defp validate_additional_keys(validation_result, opts, %{opts: keys}) do
+  defp validate_extra_keys(validation_result, opts, %{opts: keys}) do
     extra_keys =
       opts
       |> Keyword.keys()
@@ -151,7 +153,7 @@ defmodule Optimal do
     Enum.reduce(
       extra_keys,
       validation_result,
-      &add_errors(&2, {&1, "is not allowed (no extra fields)"})
+      &add_errors(&2, {&1, "is not allowed (no extra keys)"})
     )
   end
 

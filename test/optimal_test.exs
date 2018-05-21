@@ -43,7 +43,7 @@ defmodule OptimalTest do
     schema = schema()
     opts = [foo: 1]
 
-    message = "Opt Validation Error: foo - is not allowed (no extra fields)"
+    message = "Opt Validation Error: foo - is not allowed (no extra keys)"
 
     error!(opts, schema, message)
   end
@@ -53,9 +53,9 @@ defmodule OptimalTest do
     opts = [foo: 1, bar: 2, baz: 3]
 
     message =
-      "Opt Validation Error: baz - is not allowed (no extra fields)"
-      <> ", bar - is not allowed (no extra fields)"
-      <> ", foo - is not allowed (no extra fields)"
+      "Opt Validation Error: baz - is not allowed (no extra keys)"
+      <> ", bar - is not allowed (no extra keys)"
+      <> ", foo - is not allowed (no extra keys)"
 
     error!(opts, schema, message)
   end

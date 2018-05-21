@@ -1,5 +1,6 @@
 defmodule Optimal.Type do
   @scalar_types [
+    :any,
     :atom,
     :binary,
     :bitstring,
@@ -10,15 +11,15 @@ defmodule Optimal.Type do
     :integer,
     :keyword,
     :list,
-    :string,
     :map,
     :nil,
     :number,
     :pid,
     :port,
     :reference,
+    :string,
+    :struct,
     :tuple,
-    :struct
   ]
 
   def validate_types(types, field_name, _opts, _schema) do
@@ -53,6 +54,7 @@ defmodule Optimal.Type do
   def matches_type?({:struct, _}, _), do: false
   def matches_type?(%struct{}, %struct{}), do: true
   def matches_type?(%_{}, _), do: false
+  def matches_type?({:enum, list}, value), do: value in list
   # Below this line is only scalar types. Do not move things below/above this line.
   def matches_type?(type, _) when type not in @scalar_types, do: raise("Unreachable: no type #{inspect(type)}")
   def matches_type?(:int, value) when is_integer(value), do: true
@@ -82,7 +84,11 @@ defmodule Optimal.Type do
   def valid_type?({:keyword, type}), do: valid_type?(type)
   def valid_type?({:list, type}), do: valid_type?(type)
   def valid_type?({:struct, module}) when is_atom(module), do: true
+  def valid_type?({:enum, values}) when is_list(values), do: true
   def valid_type?(%_{}), do: true
   def valid_type?(type) when type in @scalar_types, do: true
   def valid_type?(_), do: false
+
+  def merge(same, same), do: same
+  def merge(left, right), do: [left, right]
 end

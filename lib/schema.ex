@@ -2,7 +2,7 @@ defmodule Optimal.Schema do
   defstruct opts: [],
             defaults: [],
             required: [],
-            additional_keys?: false,
+            extra_keys?: false,
             allow_values: [],
             types: [],
             custom: []
@@ -11,7 +11,7 @@ defmodule Optimal.Schema do
           opts: [atom | {atom, term}],
           defaults: Keyword.t(),
           required: [],
-          additional_keys?: boolean,
+          extra_keys?: boolean,
           allow_values: Keyword.t(),
           types: Keyword.t(),
           custom: Keyword.t()
@@ -33,14 +33,14 @@ defmodule Optimal.Schema do
       opts: opt_keys(opts[:opts]),
       types: to_keyword(opts[:opts]),
       defaults: opts[:defaults],
-      additional_keys?: opts[:additional_keys?],
+      extra_keys?: opts[:extra_keys?],
       allow_values: opts[:allow_values],
       required: opts[:required],
       custom: opts[:custom]
     }
   end
 
-  @spec opt_keys([atom | {atom, term}]) :: atom
+  @spec opt_keys([atom | {atom, term}]) :: [atom]
   defp opt_keys(opts) do
     Enum.map(opts, fn
       {opt, _} -> opt
@@ -61,12 +61,17 @@ defmodule Optimal.Schema do
     %__MODULE__{
       opts: Enum.uniq(left.opts ++ right.opts),
       defaults: Keyword.merge(left.defaults, right.defaults),
-      additional_keys?: right.additional_keys?,
+      extra_keys?: right.extra_keys? || left.extra_keys?,
       allow_values:
         Keyword.merge(left.allow_values, right.allow_values, fn _, v1, v2 -> v1 ++ v2 end),
-      # TODO: Smarter type merge
-      types: Keyword.merge(left.types, right.types)
+      types: merge_types(left.types, right.types),
+      custom: left.custom ++ right.custom
     }
+  end
+
+  @spec merge_types(Keyword.t(), Keyword.t()) :: Keyword.t()
+  defp merge_types(left, right) do
+    Keyword.merge(left, right, fn _, v1, v2 -> Optimal.Type.merge(v1, v2) end)
   end
 
   @spec schema_schema() :: t()
@@ -76,7 +81,7 @@ defmodule Optimal.Schema do
         :opts,
         :required,
         :defaults,
-        :additional_keys?,
+        :extra_keys?,
         :allow_values,
         :custom
       ],
@@ -84,18 +89,18 @@ defmodule Optimal.Schema do
         opts: [{:list, :atom}, :keyword],
         required: {:list, :atom},
         defaults: :keyword,
-        additional_keys?: :boolean,
+        extra_keys?: :boolean,
         allow_values: {:keyword, :list},
         custom: :keyword
       ],
       defaults: [
         required: [],
         defaults: [],
-        additional_keys?: false,
+        extra_keys?: false,
         allow_values: [],
         custom: []
       ],
-      additional_keys?: false,
+      extra_keys?: false,
       allow_values: [],
       custom: [
         opts: &Optimal.Type.validate_types/4

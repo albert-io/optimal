@@ -1,20 +1,40 @@
 defmodule Optimal.MixProject do
   use Mix.Project
 
+  @version "0.2.0"
+
   def project do
     [
       app: :optimal,
-      version: "0.1.1",
+      version: @version,
       elixir: "~> 1.6",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       description: "A schema based `opt` validator",
-      package: [
-        maintainers: ["Zach Daniel"],
-        licenses: ["MIT"],
-        links: %{"GitHub" => "https://github.com/albert-io/optimal"},
-        source_url: "https://github.com/albert-io/optimal"
+      docs: docs(),
+      package: package()
+    ]
+  end
+
+  def docs do
+    [
+      main: "readme",
+      source_ref: "v#{@version}",
+      canonical: "http://hexdocs.pm/optimal",
+      source_url: "https://github.com/albert-io/optimal",
+      extras: [
+        "README.md"
       ]
+    ]
+  end
+
+  def package do
+    [
+      maintainers: ["Zach Daniel"],
+      licenses: ["MIT"],
+      links: %{"GitHub" => "https://github.com/albert-io/optimal"},
+      source_url: "https://github.com/albert-io/optimal",
+      files: ~w(.formatter.exs mix.exs README.md lib)
     ]
   end
 

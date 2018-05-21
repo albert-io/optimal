@@ -172,6 +172,12 @@ defmodule TypeTest do
     error!(opts, schema, message)
   end
 
+  test "that a schema fails at schema generation time with an unknown type" do
+    assert_raise ArgumentError, "Opt Validation Error: opts - No such Optimal type: :foo", fn ->
+      schema(opts: [foo: :foo])
+    end
+  end
+
   test "that a list provided as a type allows for any of the types to pass" do
     schema = schema(opts: [foo: [:integer, :string]])
     opts1 = [foo: "hello"]
@@ -180,6 +186,4 @@ defmodule TypeTest do
     validate!(opts1, schema)
     validate!(opts2, schema)
   end
-
-
 end
