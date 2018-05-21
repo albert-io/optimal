@@ -80,7 +80,6 @@ defmodule Optimal.Schema do
         :allow_values,
         :custom
       ],
-      # TODO: UNCOMMENT THIS WHEN DONE TESTING
       types: [
         opts: [{:list, :atom}, :keyword],
         required: {:list, :atom},
