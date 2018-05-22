@@ -102,11 +102,7 @@ defmodule Optimal do
         !Keyword.has_key?(opts, field) -> result
         Optimal.Type.matches_type?(type, opts[field]) -> result
         true ->
-          message =
-            case type do
-              %struct{} -> "must be of type #{inspect(struct)}"
-              type -> "must be of type #{inspect(type)}"
-            end
+          message = "must be of type #{inspect(type)}"
           add_errors(result, {field, message})
       end
     end)
