@@ -1,3 +1,5 @@
+[![Coverage Status](https://coveralls.io/repos/github/albert-io/optimal/badge.svg?branch=master)](https://coveralls.io/github/albert-io/optimal?branch=master)
+
 # Optimal
 
 A schema based `opt` validator. Its verbose, but I've tried many other data validation libraries, and their succinctness came with a cost when it came to features. There are a lot of optimizations and improvements that can be made, so contributions are very welcome.
