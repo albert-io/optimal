@@ -10,7 +10,7 @@ defmodule Optimal.Schema do
   @type t :: %__MODULE__{
           opts: [atom | {atom, term}],
           defaults: Keyword.t(),
-          required: [],
+          required: [atom],
           extra_keys?: boolean,
           allow_values: Keyword.t(),
           types: Keyword.t(),
