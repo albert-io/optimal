@@ -167,7 +167,7 @@ defmodule TypeTest do
     schema = schema(opts: [foo: %TestStruct{}])
     opts = [foo: %TestStruct2{}]
 
-    message = "Opt Validation Error: foo - must be of type TypeTest.TestStruct"
+    message = "Opt Validation Error: foo - must be of type {:struct, TypeTest.TestStruct}"
 
     error!(opts, schema, message)
   end

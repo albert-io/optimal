@@ -102,11 +102,15 @@ defmodule Optimal do
         !Keyword.has_key?(opts, field) -> result
         Optimal.Type.matches_type?(type, opts[field]) -> result
         true ->
-          message = "must be of type #{inspect(type)}"
+          message = "must be of type " <> sanitize_type(type)
           add_errors(result, {field, message})
       end
     end)
   end
+
+  @spec sanitize_type(term) :: String.t()
+  defp sanitize_type(%struct{}), do: sanitize_type({:struct, struct})
+  defp sanitize_type(term), do: inspect(term)
 
   @spec validate_required(validation_result(), Keyword.t(), Optimal.Schema.t()) ::
           validation_result()
