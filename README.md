@@ -11,6 +11,7 @@ View the documentation: [https://hexdocs.pm/optimal](https://hexdocs.pm/optimal)
 * Better error messages, both for type mismatches and in general
 * Supporting nested schemas
 * Optimize. The schema based design allows schemas to be declared at compile time (for instance in module attributes) and that should be leveraged as much as possible to ensure that validating a schema does no work that could be done when building the schema.
+* Macro. We could potentially provide something that can partially validate opts at compile time. For instance, any literal values or known values could be validated at compile time.
 
 ## Installation
 
