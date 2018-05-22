@@ -38,8 +38,6 @@ defmodule Optimal.Type do
     end)
   end
 
-  #TODO: Support nested schemas
-
   def matches_type?(types, value) when is_list(types), do: Enum.any?(types, &matches_type?(&1, value))
   def matches_type?(:any, _), do: true
   def matches_type?({:keyword, value_type}, value) do

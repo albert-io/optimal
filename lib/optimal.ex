@@ -63,7 +63,6 @@ defmodule Optimal do
     {:error, [{:opts, "opts must be a keyword list or a map."}]}
   end
 
-  # TODO: Document that custom checks are only run on valid opts
   @spec validate_custom(validation_result(), Optimal.Schema.t()) :: validation_result()
   defp validate_custom(
          validation_result = {:ok, opts},
