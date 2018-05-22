@@ -3,6 +3,10 @@ elixir:
   - 1.6.5
 otp_release:
   - 20
+addons:
+  apt:
+    update: true
+
 script:
   - mix compile --warnings-as-errors
   - mix credo --strict
