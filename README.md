@@ -6,6 +6,12 @@ A schema based `opt` validator. Its verbose, but I've tried many other data vali
 
 View the documentation: [https://hexdocs.pm/optimal](https://hexdocs.pm/optimal)
 
+## Roadmap
+
+* Better error messages, both for type mismatches and in general
+* Supporting nested schemas
+* Optimize. The schema based design allows schemas to be declared at compile time (for instance in module attributes) and that should be leveraged as much as possible to ensure that validating a schema does no work that could be done when building the schema.
+
 ## Installation
 
 If [available in Hex](https://hex.pm/docs/publish), the package can be installed
