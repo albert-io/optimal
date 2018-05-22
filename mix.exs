@@ -13,6 +13,7 @@ defmodule Optimal.MixProject do
       description: "A schema based `opt` validator",
       docs: docs(),
       package: package(),
+      test_coverage: [tool: ExCoveralls],
       preferred_cli_env: [
         "coveralls.travis": :test
       ]
