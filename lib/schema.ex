@@ -1,4 +1,8 @@
 defmodule Optimal.Schema do
+  @moduledoc """
+  Functions for generating and validating the opts that generate a schema.
+  """
+
   defstruct opts: [],
             defaults: [],
             required: [],

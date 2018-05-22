@@ -1,4 +1,8 @@
 defmodule Optimal.Type do
+  @moduledoc """
+  Exposes functions for validating types, and determining if a value matches a type.
+  """
+
   @scalar_types [
     :any,
     :atom,
