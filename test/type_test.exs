@@ -1,4 +1,3 @@
-
 defmodule TypeTest do
   use ExUnit.Case
 
@@ -138,7 +137,7 @@ defmodule TypeTest do
 
   test "that a function of the incorrect arity cannot be used when arity is specified" do
     schema = schema(opts: [foo: {:function, 2}])
-    opts = [foo: fn (i) -> i * i end]
+    opts = [foo: fn i -> i * i end]
 
     message = "Opt Validation Error: foo - must be of type {:function, 2}"
 

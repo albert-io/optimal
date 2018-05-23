@@ -1,6 +1,6 @@
-[![Build Status](https://travis-ci.com/albert-io/optimal.svg?branch=master)](https://travis-ci.com/albert-io/optimal) [![Ebert](https://ebertapp.io/github/albert-io/optimal.svg)](https://ebertapp.io/github/albert-io/optimal) [![Coverage Status](https://coveralls.io/repos/github/albert-io/optimal/badge.svg?branch=master)](https://coveralls.io/github/albert-io/optimal?branch=master) [![Inline docs](http://inch-ci.org/github/albert-io/optimal.svg)](http://inch-ci.org/github/albert-io/optimal)
-
 # Optimal
+
+[![Build Status](https://travis-ci.com/albert-io/optimal.svg?branch=master)](https://travis-ci.com/albert-io/optimal) [![Ebert](https://ebertapp.io/github/albert-io/optimal.svg)](https://ebertapp.io/github/albert-io/optimal) [![Coverage Status](https://coveralls.io/repos/github/albert-io/optimal/badge.svg?branch=master)](https://coveralls.io/github/albert-io/optimal?branch=master) [![Inline docs](http://inch-ci.org/github/albert-io/optimal.svg)](http://inch-ci.org/github/albert-io/optimal)
 
 A schema based `opt` validator. Its verbose, but I've tried many other data validation libraries, and their succinctness came with a cost when it came to features. There are a lot of optimizations and improvements that can be made, so contributions are very welcome.
 
@@ -26,7 +26,7 @@ def deps do
 end
 ```
 
-## Examples
+## Getting Started Examples
 
 ```elixir
 # Allow no opts
@@ -49,8 +49,6 @@ Optimal.schema(opts, [foo: :int, bar: :string, baz: :pid], required: [:foo, :bar
 Optimal.schema(opts, [foo: :int, bar: :string, baz: :boolean], defaults: [baz: true])
 
 # Allow only specific values for certain opts
-Optimal.schema(opts, [foo: :int], allow_values: [foo: [1, 2, 3]])
-# Or as an enum type
 Optimal.schema(opts, [foo: {:enum, [1, 2, 3]}])
 
 # Custom validations
@@ -67,6 +65,7 @@ Optimal.schema(opts, [foo: :integer, bar: :string], custom: [&custom/4])
 ```
 
 ## Types
+
 ### Scalar Types
 
 * :any
@@ -137,9 +136,64 @@ def greater_than_1_and_even(field_value, field, _, _) do
 end
 ```
 
+## Auto Documentation
+
+If your schemas are defined at compile time, it is possible to interpolate a generated documentation for them into your docstrings.
+If you are doing this, you may also want to leverage the `describe` opt when building schemas, that lets you attach descriptions.
+
+For example:
+
+```elixir
+
+@opts Optimal.schema(opts: [
+    foo: [:int, :string],
+    bars: {:list, :int}
+  ],
+  required: [:foo],
+  describe: [
+    foo: "The id of the foo you want",
+    bars: "The ids of all of the bars you want"
+  ],
+  defaults: [
+    bars: []
+  ],
+  extra_keys?: true
+)
+
+@doc """
+This does a special thing.
+
+#{Optimal.Doc.document(@opts)}
+
+More in-depth documentation
+"""
+def my_special_function(opts) do
+
+end
+```
+
+This would generate a docstring that looks like:
+
+### Doc Example
+
+This does a special thing.
+
+---
+
+## Opts
+
+* `foo`(`[:int, :string]`) **Required**: The id of the foo you want
+* `bars`(`{:list, :int}`): The ids of all of the bars you want - Default: []
+
+Also accepts extra opts that are not named here.
+
+---
+
+More in-depth documentation
+
 ## Schema merging
 
-This behavior is not set in stone, and will probably need to take a `strategy` option to support different kinds of merging opt schemas. We've noticed this is very helpful with certain patterns like building a DSL, where all forms of something take a certain set of args, but a specific form allows more args and/or additional types for that set arg.
+This behavior is not set in stone, and will probably need to take a `strategy` option to support different kinds of merging opt schemas. This is very useful when working with many functions that are more specific versions of some generic action, or that all eventually call into the same function and need to accept that function's opts as well.
 
 ```elixir
 
@@ -148,3 +202,23 @@ schema2 = Optimal.schema(opts: [foo: :string, bar: :int])
 
 Optimal.merge(schema1, schema2) == Optimal.schema(opts: [foo: [:int, :string], bar: :int])
 ```
+
+### Merge annotations
+
+You can provide an annotation when merging, and options will be further grouped by that annotation.
+
+```elixir
+Optimal.merge(schema1, schema2, annotate: "Shared")
+```
+
+---
+
+* `id`(`:int`) **Required**
+* `foo`(`:int`)
+
+#### Shared
+
+* `baz`(`:int`)
+* `bar`(`:int`)
+
+---
