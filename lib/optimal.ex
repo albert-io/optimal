@@ -3,12 +3,21 @@ defmodule Optimal do
   Documentation for Optimal.
   """
 
+  @type schema() :: Optimal.Schema.t()
   @type error :: {atom, String.t()}
   @type validation_result :: {:ok, Keyword.t()} | {:error, [error]}
 
+  @doc "See `Optimal.Schema.new/1`"
   defdelegate schema(opts), to: Optimal.Schema, as: :new
   defdelegate schema(), to: Optimal.Schema, as: :new
-  defdelegate merge(left, right), to: Optimal.Schema, as: :merge
+
+  @doc "See `Optimal.Schema.merge/2`"
+  defdelegate merge(left, right), to: Optimal.Schema
+  defdelegate merge(left, right, opts), to: Optimal.Schema
+
+  @doc "See `Optimal.Doc.document/2`"
+  defdelegate document(schema, opts), to: Optimal.Doc
+  defdelegate document(schema), to: Optimal.Doc
 
   @doc """
   Validates opts according to a schema or the constructor for a schema. Raises on invalid opts.
@@ -24,8 +33,7 @@ defmodule Optimal do
       ** (ArgumentError) Opt Validation Error: reticulate_splines? - is required
 
   """
-  @spec validate!(opts :: Keyword.t(), schema :: Optimal.Schema.t() | Keyword.t()) ::
-          Keyword.t() | no_return
+  @spec validate!(opts :: Keyword.t(), schema :: schema()) :: Keyword.t() | no_return
   def validate!(opts, schema = %Optimal.Schema{}) do
     case validate(opts, schema) do
       {:ok, opts} ->
@@ -46,6 +54,7 @@ defmodule Optimal do
   def validate(opts, schema) when is_map(opts) do
     validate(Enum.into(opts, []), schema)
   end
+
   def validate(opts, schema) when is_list(opts) do
     with_defaults =
       Enum.reduce(schema.defaults, opts, fn {default, value}, opts ->
@@ -54,16 +63,15 @@ defmodule Optimal do
 
     {:ok, with_defaults}
     |> validate_required(with_defaults, schema)
-    |> validate_inclusion(with_defaults, schema)
     |> validate_types(with_defaults, schema)
     |> validate_extra_keys(with_defaults, schema)
     |> validate_custom(schema)
   end
+
   def validate(_opts, _schema) do
     {:error, [{:opts, "opts must be a keyword list or a map."}]}
   end
 
-  @spec validate_custom(validation_result(), Optimal.Schema.t()) :: validation_result()
   defp validate_custom(
          validation_result = {:ok, opts},
          schema = %{custom: [{field, custom} | rest]}
@@ -72,8 +80,10 @@ defmodule Optimal do
       case custom.(opts[field], field, opts, schema) do
         true ->
           validation_result
+
         false ->
           add_errors(validation_result, {field, "failed a custom validation"})
+
         :ok ->
           validation_result
 
@@ -82,6 +92,7 @@ defmodule Optimal do
 
         {:error, error_or_errors} ->
           add_errors(validation_result, error_or_errors)
+
         [] ->
           validation_result
 
@@ -94,13 +105,15 @@ defmodule Optimal do
 
   defp validate_custom(validation_result, _schema), do: validation_result
 
-  @spec validate_types(validation_result(), Keyword.t(), Optimal.Schema.t()) ::
-          validation_result()
   defp validate_types(validation_result, opts, %{types: types}) do
     Enum.reduce(types, validation_result, fn {field, type}, result ->
       cond do
-        !Keyword.has_key?(opts, field) -> result
-        Optimal.Type.matches_type?(type, opts[field]) -> result
+        !Keyword.has_key?(opts, field) ->
+          result
+
+        Optimal.Type.matches_type?(type, opts[field]) ->
+          result
+
         true ->
           message = "must be of type " <> sanitize_type(type)
           add_errors(result, {field, message})
@@ -108,12 +121,9 @@ defmodule Optimal do
     end)
   end
 
-  @spec sanitize_type(term) :: String.t()
   defp sanitize_type(%struct{}), do: sanitize_type({:struct, struct})
   defp sanitize_type(term), do: inspect(term)
 
-  @spec validate_required(validation_result(), Keyword.t(), Optimal.Schema.t()) ::
-          validation_result()
   defp validate_required(validation_result, opts, %{required: required}) do
     Enum.reduce(required, validation_result, fn key, result ->
       if is_nil(opts[key]) do
@@ -124,22 +134,6 @@ defmodule Optimal do
     end)
   end
 
-  @spec validate_inclusion(validation_result(), Keyword.t(), Optimal.Schema.t()) ::
-          validation_result()
-  defp validate_inclusion(validation_result, opts, %{allow_values: allow_values}) do
-    opts
-    |> Keyword.take(Keyword.keys(allow_values))
-    |> Enum.reduce(validation_result, fn {key, value}, result ->
-      if value in allow_values[key] do
-        result
-      else
-        add_errors(result, {key, "must be one of #{inspect(allow_values[key])}"})
-      end
-    end)
-  end
-
-  @spec validate_extra_keys(validation_result(), Keyword.t(), Optimal.Schema.t()) ::
-          validation_result()
   defp validate_extra_keys(validation_result, _opts, %{extra_keys?: true}),
     do: validation_result
 

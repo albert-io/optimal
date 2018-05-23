@@ -53,9 +53,8 @@ defmodule OptimalTest do
     opts = [foo: 1, bar: 2, baz: 3]
 
     message =
-      "Opt Validation Error: baz - is not allowed (no extra keys)"
-      <> ", bar - is not allowed (no extra keys)"
-      <> ", foo - is not allowed (no extra keys)"
+      "Opt Validation Error: baz - is not allowed (no extra keys)" <>
+        ", bar - is not allowed (no extra keys)" <> ", foo - is not allowed (no extra keys)"
 
     error!(opts, schema, message)
   end
@@ -80,21 +79,6 @@ defmodule OptimalTest do
 
     message = "Opt Validation Error: opts - opts must be a keyword list or a map."
     error!(opts, schema, message)
-  end
-
-  test "raises if a value is not in the provided allowed_values" do
-    schema = schema(opts: [:foo], allow_values: [foo: [1, 2, 3]])
-    opts = [foo: 4]
-
-    message = "Opt Validation Error: foo - must be one of [1, 2, 3]"
-    error!(opts, schema, message)
-  end
-
-  test "does not raise if a value is in the provided allowed_values list" do
-    schema = schema(opts: [:foo], allow_values: [foo: [1, 2, 3]])
-    opts = [foo: 2]
-
-    validate!(opts, schema)
   end
 
   test "a custom check does not raise errors on success" do
@@ -130,5 +114,4 @@ defmodule OptimalTest do
 
     assert(new_opts[:foo] == 1)
   end
-
 end
