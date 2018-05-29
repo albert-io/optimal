@@ -1,13 +1,13 @@
 defmodule Optimal.MixProject do
   use Mix.Project
 
-  @version "0.3.0"
+  @version "0.3.1"
 
   def project do
     [
       app: :optimal,
       version: @version,
-      elixir: "~> 1.6",
+      elixir: "~> 1.0",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       description: "A schema based `opt` validator",

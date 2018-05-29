@@ -21,6 +21,7 @@ defmodule Optimal.Type do
     :pid,
     :port,
     :reference,
+    :regex,
     :string,
     :struct,
     :tuple
@@ -95,6 +96,7 @@ defmodule Optimal.Type do
   def matches_type?(:reference, value) when is_reference(value), do: true
   def matches_type?(:tuple, value) when is_tuple(value), do: true
   def matches_type?(:struct, %_{}), do: true
+  def matches_type?(:regex, %Regex{}), do: true
   def matches_type?(_, _), do: false
 
   @spec valid_type?(term) :: boolean
