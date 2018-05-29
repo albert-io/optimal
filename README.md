@@ -21,7 +21,7 @@ by adding `optimal` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:optimal, "~> 0.3.1"}
+    {:optimal, "~> 0.3.2"}
   ]
 end
 ```
