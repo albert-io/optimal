@@ -72,6 +72,7 @@ defmodule Optimal.Schema do
   ## Opts
 
   * `annotate`(`:string`): Annotates the source of the opt, to be used in displaying documentation.
+  * `add_required?`(`:boolean`): "If true, all required fields from left/right are marked as required. Otherwise, only takes required fields from the left."
 
   ---
   """
@@ -87,7 +88,7 @@ defmodule Optimal.Schema do
         Keyword.merge(left.describe, right.describe, fn _, v1, v2 -> v1 <> " | " <> v2 end),
       types: merge_types(left.types, right.types),
       custom: left.custom ++ right.custom,
-      required: Enum.uniq(left.required ++ right.required),
+      required: merge_required(left, right, opts),
       annotations: merge_annotations(left, right, opts[:annotate])
     }
   end
@@ -108,6 +109,14 @@ defmodule Optimal.Schema do
 
   defp merge_types(left, right) do
     Keyword.merge(left, right, fn _, v1, v2 -> Optimal.Type.merge(v1, v2) end)
+  end
+
+  defp merge_required(left, right, opts) do
+    if opts[:add_required?] do
+      Enum.uniq(left.required ++ right.required)
+    else
+      left.required
+    end
   end
 
   defp merge_annotations(left, right, annotation) when is_bitstring(annotation) do

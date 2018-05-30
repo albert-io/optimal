@@ -55,13 +55,21 @@ defmodule Optimal.SchemaHelpers do
   def merge_schema() do
     %Optimal.Schema{
       opts: [
-        :annotate
+        :annotate,
+        :add_required?
       ],
       types: [
-        annotate: :string
+        annotate: :string,
+        add_required?: :boolean
+      ],
+      defaults: [
+        add_required?: true
       ],
       describe: [
-        annotate: "Annotates the source of the opt, to be used in displaying documentation."
+        annotate: "Annotates the source of the opt, to be used in displaying documentation.",
+        add_required?:
+          "If true, all required fields from left/right are marked as required. " <>
+            "Otherwise, only takes required fields from the left."
       ]
     }
   end

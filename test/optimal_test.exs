@@ -2,7 +2,7 @@ defmodule OptimalTest do
   use ExUnit.Case
   doctest Optimal
 
-  import Optimal, only: [schema: 1, schema: 0, validate!: 2]
+  import Optimal, only: [schema: 1, schema: 0, validate!: 2, merge: 3]
 
   defmacrop error!(opts, schema, message) do
     quote do
@@ -113,5 +113,14 @@ defmodule OptimalTest do
     new_opts = validate!(opts, schema)
 
     assert(new_opts[:foo] == 1)
+  end
+
+  test "a merge that doesn't add required fields only has required fields from the left" do
+    left = schema(opts: [:foo], required: [:foo])
+    right = schema(opts: [:bar], required: [:bar])
+
+    schema = merge(left, right, add_required?: false)
+
+    assert(schema.required == [:foo])
   end
 end
