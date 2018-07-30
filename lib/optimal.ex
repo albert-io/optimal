@@ -111,6 +111,20 @@ defmodule Optimal do
         !Keyword.has_key?(opts, field) ->
           result
 
+        match?(%Optimal.Schema{}, type) ->
+          case Optimal.validate(opts[field], type) do
+            {:ok, new_opts} ->
+              update_result_key(result, field, new_opts)
+
+            {:error, errors} ->
+              message =
+                Enum.map_join(errors, ", ", fn {nested_field, message} ->
+                  "nested field #{field}.#{nested_field} #{message}"
+                end)
+
+              add_errors(result, {field, message})
+          end
+
         Optimal.Type.matches_type?(type, opts[field]) ->
           result
 
@@ -148,6 +162,14 @@ defmodule Optimal do
       validation_result,
       &add_errors(&2, {&1, "is not allowed (no extra keys)"})
     )
+  end
+
+  defp update_result_key({:ok, opts}, field, value) do
+    {:ok, Keyword.put(opts, field, value)}
+  end
+
+  defp update_result_key(other, _, _) do
+    other
   end
 
   defp add_errors({:ok, _opts}, error_or_errors) do

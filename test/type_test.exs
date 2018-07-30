@@ -185,4 +185,37 @@ defmodule TypeTest do
     validate!(opts1, schema)
     validate!(opts2, schema)
   end
+
+  test "that an empty nested schema does not error" do
+    nested_schema = schema(opts: [])
+    schema = schema(opts: [foo: nested_schema])
+
+    opts = [foo: []]
+
+    validate!(opts, schema)
+  end
+
+  test "that a valid nested schema transforms itself appropriately" do
+    nested_schema = schema(opts: [bar: :integer], defaults: [bar: 1])
+    schema = schema(opts: [foo: nested_schema])
+
+    opts = [foo: []]
+
+    result = validate!(opts, schema)
+
+    assert(result[:foo] == [bar: 1])
+  end
+
+  test "that an invalid nested schema surfaces any errors" do
+    nested_schema = schema(opts: [bar: :integer], required: [:bar])
+    schema = schema(opts: [foo: nested_schema])
+
+    opts = [foo: []]
+
+    assert_raise ArgumentError,
+                 "Opt Validation Error: foo - nested field foo.bar is required",
+                 fn ->
+                   validate!(opts, schema)
+                 end
+  end
 end
