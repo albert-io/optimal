@@ -9,7 +9,6 @@ View the documentation: [https://hexdocs.pm/optimal](https://hexdocs.pm/optimal)
 ## Roadmap
 
 * Better error messages, both for type mismatches and in general
-* Supporting nested schemas
 * Optimize. The schema based design allows schemas to be declared at compile time (for instance in module attributes) and that should be leveraged as much as possible to ensure that validating a schema does no work that could be done when building the schema.
 * Macro. We could potentially provide something that can partially validate opts at compile time. For instance, any literal values or known values could be validated at compile time.
 
@@ -97,6 +96,7 @@ Optimal.schema(opts, [foo: :integer, bar: :string], custom: [&custom/4])
 * `{:struct, Some.Struct`} - An instance of `Some.Struct`
 * `%Some.Struct{}` - Same as `{:struct, Some.Struct}`
 * `{:enum, [value1, value2]}` - Allows any value in the list.
+* A nested optimal schema - Will validate that the provided keyword list adheres to the schema.
 
 ## Custom Validations
 
