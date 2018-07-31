@@ -4,6 +4,8 @@
 
 A schema based `opt` validator. Its verbose, but I've tried many other data validation libraries, and their succinctness came with a cost when it came to features. There are a lot of optimizations and improvements that can be made, so contributions are very welcome.
 
+This `opt` validator has a bit of a niche. It fits in just fine with validating any keyword list, but its especially useful for validating compile-time options, like ones provided to functions in a DSL.
+
 View the documentation: [https://hexdocs.pm/optimal](https://hexdocs.pm/optimal)
 
 ## Roadmap
