@@ -213,7 +213,57 @@ defmodule TypeTest do
     opts = [foo: []]
 
     assert_raise ArgumentError,
-                 "Opt Validation Error: foo - nested field foo.bar is required",
+                 "Opt Validation Error: foo - nested field bar is required",
+                 fn ->
+                   validate!(opts, schema)
+                 end
+  end
+
+  test "that a valid list of keywords aligning to a schema may be used" do
+    nested_schema = schema(opts: [bar: :integer], defaults: [bar: 1])
+
+    schema = schema(opts: [foo: {:list, nested_schema}])
+
+    opts = [foo: [[bar: 2], []]]
+
+    result = validate!(opts, schema)
+
+    assert(result[:foo] == [[bar: 2], [bar: 1]])
+  end
+
+  test "that a valid keyword list with schemas as values may be used" do
+    nested_schema = schema(opts: [bar: :integer], defaults: [bar: 1])
+
+    schema = schema(opts: [foo: {:keyword, nested_schema}])
+
+    opts = [foo: [thing: [bar: 2], other_thing: []]]
+
+    result = validate!(opts, schema)
+
+    assert(result[:foo] == [thing: [bar: 2], other_thing: [bar: 1]])
+  end
+
+  test "that an error in a list of schemas is surfaced with the index" do
+    nested_schema = schema(opts: [bar: :integer], required: [:bar])
+    schema = schema(opts: [foo: {:list, nested_schema}])
+
+    opts = [foo: [[]]]
+
+    assert_raise ArgumentError,
+                 "Opt Validation Error: foo - nested field [0][bar] is required",
+                 fn ->
+                   validate!(opts, schema)
+                 end
+  end
+
+  test "that an error in a keyword list of schemas is surfaced with the key" do
+    nested_schema = schema(opts: [bar: :integer], required: [:bar])
+    schema = schema(opts: [foo: {:keyword, nested_schema}])
+
+    opts = [foo: [foo: []]]
+
+    assert_raise ArgumentError,
+                 "Opt Validation Error: foo - nested field [foo][bar] is required",
                  fn ->
                    validate!(opts, schema)
                  end

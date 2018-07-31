@@ -111,19 +111,9 @@ defmodule Optimal do
         !Keyword.has_key?(opts, field) ->
           result
 
-        match?(%Optimal.Schema{}, type) ->
-          case Optimal.validate(opts[field], type) do
-            {:ok, new_opts} ->
-              update_result_key(result, field, new_opts)
-
-            {:error, errors} ->
-              message =
-                Enum.map_join(errors, ", ", fn {nested_field, message} ->
-                  "nested field #{field}.#{nested_field} #{message}"
-                end)
-
-              add_errors(result, {field, message})
-          end
+        match?(%Optimal.Schema{}, type) ||
+            match?({nested_type, %Optimal.Schema{}} when nested_type in [:keyword, :list], type) ->
+          validate_nested_schema(result, type, opts, field)
 
         Optimal.Type.matches_type?(type, opts[field]) ->
           result
@@ -132,6 +122,93 @@ defmodule Optimal do
           message = "must be of type " <> sanitize_type(type)
           add_errors(result, {field, message})
       end
+    end)
+  end
+
+  defp validate_nested_schema(result, type, opts, field) do
+    case do_nested_schema_validation(type, opts[field]) do
+      {:ok, value} ->
+        update_result_key(result, field, value)
+
+      {:error, message} ->
+        add_errors(result, {field, message})
+    end
+  end
+
+  defp do_nested_schema_validation({:list, _schema}, value)
+       when not is_list(value) do
+    {:error, "expected a list of keywords conforming to a subschema"}
+  end
+
+  defp do_nested_schema_validation({:list, schema}, value) do
+    nested_opts_result =
+      value
+      |> Enum.with_index()
+      |> Enum.reduce({[], []}, fn {keyword, index}, {opts_acc, errors_acc} ->
+        case validate(keyword, schema) do
+          {:ok, new_opts} ->
+            {[new_opts | opts_acc], errors_acc}
+
+          {:error, errors} ->
+            message = nested_error_message(index, errors)
+
+            {opts_acc, [message | errors_acc]}
+        end
+      end)
+
+    case nested_opts_result do
+      {opts_acc, []} ->
+        {:ok, Enum.reverse(opts_acc)}
+
+      {_, errors} ->
+        message = Enum.join(errors, ", ")
+        {:error, message}
+    end
+  end
+
+  defp do_nested_schema_validation({:keyword, schema}, value) do
+    nested_opts_result =
+      value
+      |> Enum.reduce({[], []}, fn {key, keyword}, {opts_acc, errors_acc} ->
+        case validate(keyword, schema) do
+          {:ok, new_opts} ->
+            {[{key, new_opts} | opts_acc], errors_acc}
+
+          {:error, errors} ->
+            message = nested_error_message(key, errors)
+
+            {opts_acc, [message | errors_acc]}
+        end
+      end)
+
+    case nested_opts_result do
+      {opts_acc, []} ->
+        {:ok, Enum.reverse(opts_acc)}
+
+      {_, errors} ->
+        message = Enum.join(errors, ", ")
+        {:error, message}
+    end
+  end
+
+  defp do_nested_schema_validation(schema = %Optimal.Schema{}, value) do
+    case validate(value, schema) do
+      {:ok, new_opts} ->
+        {:ok, new_opts}
+
+      {:error, errors} ->
+        message =
+          Enum.map_join(errors, ", ", fn {nested_field, message} ->
+            "nested field #{nested_field} #{message}"
+          end)
+
+        {:error, message}
+    end
+  end
+
+  defp nested_error_message(nesting, errors) do
+    Enum.map_join(errors, ", ", fn {nested_field, message} ->
+      "nested field [#{nesting}][#{nested_field}] #{message}"
     end)
   end
 
