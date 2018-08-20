@@ -66,6 +66,42 @@ defmodule Optimal.Type do
     matches_type?(:list, value) and Enum.all?(value, &matches_type?(type, &1))
   end
 
+  def matches_type?({:tuple, size, types}, value) when is_list(types) do
+    matches_type?(:tuple, value) and tuple_size(value) == size and
+      value |> Tuple.to_list() |> Enum.all?(&matches_type?(types, &1))
+  end
+
+  def matches_type?({:tuple, size, type}, value) do
+    types = List.duplicate(type, size)
+    matches_type?({:tuple, size, types}, value)
+  end
+
+  def matches_type?({:tuple, size}, value) when is_integer(size),
+    do: tuple_size(value) == size and matches_type?(:tuple, value)
+
+  def matches_type?({:tuple, types}, value) when is_list(types),
+    do: matches_type?({:tuple, tuple_size(value), types}, value)
+
+  def matches_type?({:tuple, types}, value) when is_tuple(types) do
+    if matches_type?(:tuple, value) and tuple_size(types) == tuple_size(value) do
+      value = Tuple.to_list(value)
+      types = Tuple.to_list(types)
+
+      [types, value]
+      |> List.zip()
+      |> Enum.reduce(true, fn {type, value}, acc ->
+        acc and matches_type?(type, value)
+      end)
+    else
+      false
+    end
+  end
+
+  def matches_type?({:tuple, type}, value) do
+    matches_type?(:tuple, value) and
+      value |> Tuple.to_list() |> Enum.all?(&matches_type?(type, &1))
+  end
+
   def matches_type?({:function, arity}, value) when is_function(value, arity), do: true
   def matches_type?({:function, _}, _), do: false
   def matches_type?({:struct, struct}, %struct{}), do: true
@@ -107,6 +143,19 @@ defmodule Optimal.Type do
   def valid_type?({:list, type}), do: valid_type?(type)
   def valid_type?({:struct, module}) when is_atom(module), do: true
   def valid_type?({:enum, values}) when is_list(values), do: true
+
+  def valid_type?({:tuple, size, types})
+      when is_integer(size) and is_list(types) and length(types) == size,
+      do: Enum.all?(types, &valid_type?/1)
+
+  def valid_type?({:tuple, _size, type}), do: valid_type?(type)
+  def valid_type?({:tuple, size}) when is_integer(size) and size >= 0, do: true
+  def valid_type?({:tuple, types}) when is_list(types), do: Enum.all?(types, &valid_type?/1)
+
+  def valid_type?({:tuple, types}) when is_tuple(types),
+    do: types |> Tuple.to_list() |> Enum.all?(&valid_type?/1)
+
+  def valid_type?({:tuple, type}), do: valid_type?(type)
   def valid_type?(%_{}), do: true
   def valid_type?(type) when type in @scalar_types, do: true
   def valid_type?(_), do: false
