@@ -268,4 +268,137 @@ defmodule TypeTest do
                    validate!(opts, schema)
                  end
   end
+
+  # tuple tests
+  test "that simple tuple schema validates correctly" do
+    schema = schema(opts: [foo: {:tuple, :integer}])
+
+    opts = [foo: {1, 2, 3}]
+
+    result = validate!(opts, schema)
+
+    assert(result[:foo] == {1, 2, 3})
+  end
+
+  test "that incorrect simple tuple schema raises error" do
+    schema = schema(opts: [foo: {:tuple, :integer}])
+
+    opts = [foo: {1, :a, "bar"}]
+
+    assert_raise ArgumentError,
+                 "Opt Validation Error: foo - must be of type {:tuple, :integer}",
+                 fn ->
+                   validate!(opts, schema)
+                 end
+  end
+
+  test "that strict tuple schema validates correctly" do
+    schema = schema(opts: [foo: {:tuple, {:integer, :atom, :string}}])
+
+    opts = [foo: {1, :a, "bar"}]
+
+    result = validate!(opts, schema)
+
+    assert(result[:foo] == {1, :a, "bar"})
+  end
+
+  test "that incorrectly typed strict tuple schema raises error" do
+    schema = schema(opts: [foo: {:tuple, {:integer, :atom, :string}}])
+
+    opts = [foo: {1, "bar", :a}]
+
+    assert_raise ArgumentError,
+                 "Opt Validation Error: foo - must be of type {:tuple, {:integer, :atom, :string}}",
+                 fn ->
+                   validate!(opts, schema)
+                 end
+  end
+
+  test "that incorrectly sized strict tuple schema raises error" do
+    schema = schema(opts: [foo: {:tuple, {:integer, :atom, :string}}])
+
+    opts = [foo: {1, :a, "bar", :b}]
+
+    assert_raise ArgumentError,
+                 "Opt Validation Error: foo - must be of type {:tuple, {:integer, :atom, :string}}",
+                 fn ->
+                   validate!(opts, schema)
+                 end
+  end
+
+  test "that single-type sized tuple schema validates correctly" do
+    schema = schema(opts: [foo: {:tuple, 3, :atom}])
+
+    opts = [foo: {:a, :b, :c}]
+
+    result = validate!(opts, schema)
+
+    assert(result[:foo] == {:a, :b, :c})
+  end
+
+  test "that incorrectly sized single-type sized tuple schema raises error" do
+    schema = schema(opts: [foo: {:tuple, 3, :atom}])
+
+    opts = [foo: {:a, :b, :c, :d}]
+
+    assert_raise ArgumentError,
+                 "Opt Validation Error: foo - must be of type {:tuple, 3, :atom}",
+                 fn ->
+                   validate!(opts, schema)
+                 end
+  end
+
+  test "that incorrectly typed single-type sized tuple schema raises error" do
+    schema = schema(opts: [foo: {:tuple, 3, :atom}])
+
+    opts = [foo: {"a", "b", "c"}]
+
+    assert_raise ArgumentError,
+                 "Opt Validation Error: foo - must be of type {:tuple, 3, :atom}",
+                 fn ->
+                   validate!(opts, schema)
+                 end
+  end
+
+  test "that multi-type sized tuple schema validates correctly" do
+    schema = schema(opts: [foo: {:tuple, 3, [:string, :integer]}])
+
+    opts = [foo: {"a", 1, "b"}]
+
+    result = validate!(opts, schema)
+
+    assert(result[:foo] == {"a", 1, "b"})
+  end
+
+  test "that incorrectly typed multi-type sized tuple schema raises error" do
+    schema = schema(opts: [foo: {:tuple, 3, [:string, :integer]}])
+
+    opts = [foo: {[1, 2], [3, 4], [5, 6]}]
+
+    assert_raise ArgumentError,
+                 "Opt Validation Error: foo - must be of type {:tuple, 3, [:string, :integer]}",
+                 fn ->
+                   validate!(opts, schema)
+                 end
+  end
+
+  test "that sized tuple schema validates correctly" do
+    schema = schema(opts: [foo: {:tuple, 3}])
+
+    opts = [foo: {[1, 2], [3, 4], [5, 6]}]
+
+    result = validate!(opts, schema)
+
+    assert(result[:foo] == {[1, 2], [3, 4], [5, 6]})
+  end
+
+  test "that multi-type tuple schema validates correctly" do
+    schema = schema(opts: [foo: {:tuple, [:integer, :string]}])
+
+    opts = [foo: {1, "a", "b", 3, 4}]
+
+    result = validate!(opts, schema)
+
+    assert(result[:foo] == {1, "a", "b", 3, 4})
+  end
 end

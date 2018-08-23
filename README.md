@@ -93,11 +93,14 @@ Optimal.schema(opts, [foo: :integer, bar: :string], custom: [&custom/4])
 ### Composite/Complex Types
 
 * `{:keyword, value_type}` - Keyword where all values are of type `value_type`
-* `{:list, type}` - List where all values are of type `value_type`
+* `{:list, value_type}` - List where all values are of type `value_type`
 * `{:function, arity}` - A function with the arity given by `arity`
 * `{:struct, Some.Struct`} - An instance of `Some.Struct`
 * `%Some.Struct{}` - Same as `{:struct, Some.Struct}`
 * `{:enum, [value1, value2]}` - Allows any value in the list.
+* `{:tuple, tuple_size}` - Tuple with size `tuple_size`.
+* `{:tuple, {type1, type2, ...}}` - Tuple with given type structure, so the first element is of type `type1`, etc.
+* `{:tuple, tuple_size, value_type}` - Tuple with size `tuple_size` and every element of type `value_type`.
 * A nested optimal schema - Will validate that the provided keyword list adheres to the schema.
 
 ## Custom Validations
