@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.com/albert-io/optimal.svg?branch=master)](https://travis-ci.com/albert-io/optimal) [![Ebert](https://ebertapp.io/github/albert-io/optimal.svg)](https://ebertapp.io/github/albert-io/optimal) [![Coverage Status](https://coveralls.io/repos/github/albert-io/optimal/badge.svg?branch=master)](https://coveralls.io/github/albert-io/optimal?branch=master) [![Inline docs](http://inch-ci.org/github/albert-io/optimal.svg)](http://inch-ci.org/github/albert-io/optimal)
 
-A schema based `opt` validator. Its verbose, but I've tried many other data validation libraries, and their succinctness came with a cost when it came to features. There are a lot of optimizations and improvements that can be made, so contributions are very welcome.
+Optimal is a schema based `opt` validator. It is verbose, but I've tried many other data validation libraries, and their succinctness came with a cost when it came to features. There are still a lot of optimizations and improvements that can be made, so contributions are very welcome.
 
 This `opt` validator has a bit of a niche. It fits in just fine with validating any keyword list, but its especially useful for validating compile-time options, like ones provided to functions in a DSL.
 
@@ -27,7 +27,53 @@ def deps do
 end
 ```
 
-## Getting Started Examples
+## Getting Started 
+
+### Validation Examples
+
+To use Optimal, you define your validation rules as an Optimal schema and then validate input against it using the `Optimal.validate/2` or `Optimal.validate!/2` functions.
+ 
+Validate a keyword list:
+```elixir
+iex> schema = Optimal.schema(opts: [:foo, :bar, :baz])
+iex> my_list = [{:foo, "foo val"}, {:bar, "bar val"}, {:baz, "bazz val"}]
+iex> Optimal.validate(my_list, schema)
+{:ok, [foo: "foo val", bar: "bar val", baz: "bazz val"]}
+```
+
+Or validate a map:
+
+```elixir
+iex> my_map = %{foo: "foo val", bar: "bar val", baz: "bazz val"}
+%{bar: "bar val", baz: "bazz val", foo: "foo val"}
+iex> Optimal.validate(my_map, schema)
+{:ok, [bar: "bar val", baz: "bazz val", foo: "foo val"]}
+```
+
+Notice that in both cases, a keyword list is returned.
+
+Use `Optimal.validate!/2` to return an error instead of a tuple:
+```elixir
+iex> bad_map = %{d: "not allowed"}
+%{other: "stuff"}
+iex> schema = Optimal.schema(opts: [:a, :b, :c])
+iex> Optimal.validate!(bad_map, schema)
+** (ArgumentError) Opt Validation Error: other - is not allowed (no extra keys)
+    (optimal) lib/optimal.ex:44: Optimal.validate!/2
+```
+
+You can require that your inputs be of a certain type:
+
+```elixir
+iex> schema = Optimal.schema(opts: [age: :int, name: :string])
+iex> my_data = [{:age, 12}, {:name, false}]
+iex> Optimal.validate(my_data, schema)
+{:error, [name: "must be of type :string"]}
+```
+
+### Schema Examples
+
+Define your validation rules in your schema.
 
 ```elixir
 # Allow no opts
@@ -43,14 +89,14 @@ Optimal.schema(opts: [:foo, :bar, :baz])
 Optimal.schema(opts: [foo: :int, bar: :string, baz: :pid])
 
 # Require certain opts
-Optimal.schema(opts, [foo: :int, bar: :string, baz: :pid], required: [:foo, :bar])
+Optimal.schema(opts: [foo: :int, bar: :string, baz: :pid], required: [:foo, :bar])
 
 # Provide defaults for arguments (defaults will have to pass any type validation)
 # If they provide they key, but a `nil` value, the default is *not* used.
-Optimal.schema(opts, [foo: :int, bar: :string, baz: :boolean], defaults: [baz: true])
+Optimal.schema(opts: [foo: :int, bar: :string, baz: :boolean], defaults: [baz: true])
 
 # Allow only specific values for certain opts
-Optimal.schema(opts, [foo: {:enum, [1, 2, 3]}])
+Optimal.schema(opts: [foo: {:enum, [1, 2, 3]}])
 
 # Custom validations
 # Read below for more info
@@ -62,7 +108,7 @@ def custom(field_value, field_name, all_opts, schema) do
   end
 end
 
-Optimal.schema(opts, [foo: :integer, bar: :string], custom: [&custom/4])
+Optimal.schema(opts: [foo: :integer, bar: :string], custom: [bar: &custom/4])
 ```
 
 ## Types
@@ -105,9 +151,42 @@ Optimal.schema(opts, [foo: :integer, bar: :string], custom: [&custom/4])
 
 ## Custom Validations
 
-Custom validations have the ability to add arbitrary errors, and additionally they can modify the `opts` as they pass through. They are run in order, and unlike all built in validations, they are only run on valid opts.
+Your custom validators are defined as keyword list added to the `custom:` atom, e.g.
 
-### Examples
+```
+Optimal.schema(opts: [foo: :integer, bar: :string], custom: [bar: &my_custom_validator/4])
+```
+
+Custom validations have the ability to add arbitrary errors and can modify the `opts` as they pass through. They are run in order, and unlike all built in validations, they are only run on valid opts. In other words, the custom validators run _after_ the other validators.
+
+Your custom validation functions should receive 4 arguments:
+ 
+* field value
+* field id (atom)
+* options
+* schema
+
+And they may return several different types of responses:
+
+* `true` / `false` to indicate whether it passed or failed validation
+* `:ok` to indicate that it passed validation
+* `{:ok, updated_options}` to provide modifications to the options before output
+* `{:error, error_or_errors}` to provide a custom message(s) about a failed validation
+* `[]` to indicate that it passed validation
+* a list of errors to indicate why it failed validation
+
+### Custom Validator Usage Example
+
+Because custom validators can modify the `opts`, we can change the final output to a map (arbitrarily, this validation rule is attached to the `c` field):
+
+```elixir
+iex> my_data = [{:a, "Apple"}, {:b, "Boy"}, {:c, "Cat"}]
+iex> schema = Optimal.schema(opts: [a: :string, b: :string, c: :string], custom: [c: fn _, _, opts, _ -> {:ok, Enum.into(opts, %{})} end])
+iex> Optimal.validate(my_data, schema)                                      
+{:ok, %{a: "Apple", b: "Boy", c: "Cat"}
+```
+
+### Custom Validation Function Examples
 
 ```elixir
 # Simple (returning booleans)
@@ -130,13 +209,13 @@ def greater_than_1_and_even(field_value, field, _, _) do
     if field_value > 1 do
       []
     else
-      [{field, "should be greater than 1}]
+      [{field, "should be greater than 1"}]
     end
 
   if Integer.is_even(field_value) do
     errors
   else
-    [{field, "should be even} | errors]
+    [{field, "should be even"} | errors]
   end
 end
 ```
