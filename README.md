@@ -153,7 +153,7 @@ Optimal.schema(opts: [foo: :integer, bar: :string], custom: [bar: &custom/4])
 
 Your custom validators are defined as keyword list added to the `custom:` atom, e.g.
 
-```
+```elixir
 Optimal.schema(opts: [foo: :integer, bar: :string], custom: [bar: &my_custom_validator/4])
 ```
 
