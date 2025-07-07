@@ -82,7 +82,7 @@ defmodule Optimal.Doc do
   defp do_document_opts(opts, schema) do
     opts
     |> Enum.sort_by(fn opt ->
-      not (opt in schema.required)
+      opt not in schema.required
     end)
     |> Enum.map_join("\n", fn opt ->
       string_opt = "`" <> Atom.to_string(opt) <> "`"

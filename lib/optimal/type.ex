@@ -110,7 +110,7 @@ defmodule Optimal.Type do
   def matches_type?(%_{}, _), do: false
   def matches_type?({:enum, list}, value), do: value in list
   # Below this line is only scalar types. Do not move things below/above this line.
-  def matches_type?(type, _) when not (type in @scalar_types),
+  def matches_type?(type, _) when type not in @scalar_types,
     do: raise("Unreachable: no type #{inspect(type)}")
 
   def matches_type?(:int, value) when is_integer(value), do: true
