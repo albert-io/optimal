@@ -1,7 +1,5 @@
 # Optimal
 
-[![Build Status](https://travis-ci.com/albert-io/optimal.svg?branch=master)](https://travis-ci.com/albert-io/optimal) [![Ebert](https://ebertapp.io/github/albert-io/optimal.svg)](https://ebertapp.io/github/albert-io/optimal) [![Coverage Status](https://coveralls.io/repos/github/albert-io/optimal/badge.svg?branch=master)](https://coveralls.io/github/albert-io/optimal?branch=master) [![Inline docs](http://inch-ci.org/github/albert-io/optimal.svg)](http://inch-ci.org/github/albert-io/optimal)
-
 Optimal is a schema based `opt` validator. It is verbose, but I've tried many other data validation libraries, and their succinctness came with a cost when it came to features. There are still a lot of optimizations and improvements that can be made, so contributions are very welcome.
 
 This `opt` validator has a bit of a niche. It fits in just fine with validating any keyword list, but its especially useful for validating compile-time options, like ones provided to functions in a DSL.
