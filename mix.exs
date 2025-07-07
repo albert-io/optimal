@@ -53,14 +53,10 @@ defmodule Optimal.MixProject do
   defp deps do
     [
       {:ex_doc, ">= 0.0.0", only: :dev},
-      {:credo, "~> 0.8", only: [:dev, :test], runtime: false},
+      {:credo, "~> 1.7.12", only: [:dev, :test], runtime: false},
       {:excoveralls, "~> 0.6", only: :test},
-      {:inch_ex, "~> 0.5", only: [:dev, :test]},
-      {:dialyxir,
-       github: "jeremyjh/dialyxir",
-       ref: "00c1e32153b54e4b54f0d33f999d642c00dcd72b",
-       only: [:dev],
-       runtime: false}
+      {:inch_ex, "~> 2.0", only: [:dev, :test]},
+      {:dialyxir, "~> 1.4", only: [:dev], runtime: false}
     ]
   end
 end
