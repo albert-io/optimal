@@ -19,10 +19,12 @@ jobs:
       MIX_ENV: test
     steps:
       - uses: actions/checkout@v4
+
       - uses: erlef/setup-beam@v1
         with:
           elixir-version: ${{ matrix.elixir }}
           otp-version: ${{ matrix.otp }}
+
       - run: mix deps.get
       - run: mix compile --warnings-as-errors
       - run: mix format --check-formatted
