@@ -88,7 +88,7 @@ defmodule Optimal.Type do
       types = Tuple.to_list(types)
 
       [types, value]
-      |> List.zip()
+      |> Enum.zip()
       |> Enum.reduce(true, fn {type, value}, acc ->
         acc and matches_type?(type, value)
       end)
