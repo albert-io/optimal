@@ -261,8 +261,7 @@ defmodule Optimal do
   defp message(errors) do
     short_messages =
       errors
-      |> Enum.map(&short_message/1)
-      |> Enum.join(", ")
+      |> Enum.map_join(", ", &short_message/1)
 
     "Opt Validation Error: " <> "#{short_messages}"
   end
@@ -271,14 +270,13 @@ defmodule Optimal do
     path =
       path
       |> Enum.with_index()
-      |> Enum.map(fn {elem, i} ->
+      |> Enum.map_join(fn {elem, i} ->
         if i == 0 do
           elem
         else
           "[:#{elem}]"
         end
       end)
-      |> Enum.join()
 
     "#{path} - #{message}"
   end
