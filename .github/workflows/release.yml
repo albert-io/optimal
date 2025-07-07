@@ -1,0 +1,31 @@
+on:
+  push:
+    branches:
+      - master
+
+permissions:
+  contents: write
+  pull-requests: write
+
+name: Release
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: googleapis/release-please-action@v4
+        id: release
+        with:
+          release-type: elixir
+      - uses: actions/checkout@v4
+        if: ${{ steps.release.outputs.release_created }}
+      - uses: erlef/setup-beam@v1
+        if: ${{ steps.release.outputs.release_created }}
+        with:
+          elixir-version: "1.18"
+          otp-version: "27"
+      - run: mix hex.publish --yes
+        if: ${{ steps.release.outputs.release_created }}
+        env:
+          MIX_ENV: "prod"
+          HEX_API_KEY: ${{ secrets.HEX_API_KEY }}
