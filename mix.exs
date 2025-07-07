@@ -30,7 +30,7 @@ defmodule Optimal.MixProject do
 
   def package do
     [
-      maintainers: ["Zach Daniel"],
+      maintainers: ["Alec Hartung"],
       licenses: ["MIT"],
       links: %{"GitHub" => "https://github.com/albert-io/optimal"},
       source_url: "https://github.com/albert-io/optimal",
