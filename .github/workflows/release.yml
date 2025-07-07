@@ -27,5 +27,5 @@ jobs:
       - run: mix hex.publish --yes
         if: ${{ steps.release.outputs.release_created }}
         env:
-          MIX_ENV: "prod"
+          MIX_ENV: prod
           HEX_API_KEY: ${{ secrets.HEX_API_KEY }}
