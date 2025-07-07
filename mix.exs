@@ -12,11 +12,7 @@ defmodule Optimal.MixProject do
       deps: deps(),
       description: "A schema based `opt` validator",
       docs: docs(),
-      package: package(),
-      test_coverage: [tool: ExCoveralls],
-      preferred_cli_env: [
-        "coveralls.travis": :test
-      ]
+      package: package()
     ]
   end
 
@@ -54,8 +50,6 @@ defmodule Optimal.MixProject do
     [
       {:ex_doc, ">= 0.0.0", only: :dev},
       {:credo, "~> 1.7.12", only: [:dev, :test], runtime: false},
-      {:excoveralls, "~> 0.6", only: :test},
-      {:inch_ex, "~> 2.0", only: [:dev, :test]},
       {:dialyxir, "~> 1.4", only: [:dev], runtime: false}
     ]
   end
