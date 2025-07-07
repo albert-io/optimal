@@ -4,8 +4,10 @@ on:
     branches:
       - master
   pull_request:
+
 permissions:
   contents: read
+
 jobs:
   elixir:
     runs-on: ubuntu-latest
