@@ -12,11 +12,7 @@ defmodule Optimal.MixProject do
       deps: deps(),
       description: "A schema based `opt` validator",
       docs: docs(),
-      package: package(),
-      test_coverage: [tool: ExCoveralls],
-      preferred_cli_env: [
-        "coveralls.travis": :test
-      ]
+      package: package()
     ]
   end
 
@@ -34,7 +30,7 @@ defmodule Optimal.MixProject do
 
   def package do
     [
-      maintainers: ["Zach Daniel"],
+      maintainers: ["Alec Hartung"],
       licenses: ["MIT"],
       links: %{"GitHub" => "https://github.com/albert-io/optimal"},
       source_url: "https://github.com/albert-io/optimal",
@@ -52,15 +48,9 @@ defmodule Optimal.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:ex_doc, ">= 0.0.0", only: :dev},
-      {:credo, "~> 0.8", only: [:dev, :test], runtime: false},
-      {:excoveralls, "~> 0.6", only: :test},
-      {:inch_ex, "~> 0.5", only: [:dev, :test]},
-      {:dialyxir,
-       github: "jeremyjh/dialyxir",
-       ref: "00c1e32153b54e4b54f0d33f999d642c00dcd72b",
-       only: [:dev],
-       runtime: false}
+      {:ex_doc, "~> 0.34", only: [:dev, :test], runtime: false, warn_if_outdated: true},
+      {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
+      {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false}
     ]
   end
 end
